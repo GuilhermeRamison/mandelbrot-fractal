@@ -2,6 +2,8 @@
 #include <fstream>
 #include <complex>
 #include <chrono>
+#include <omp.h>
+
 #define WIDTH 800
 #define HEIGHT 800
 
@@ -36,7 +38,7 @@ int main (int argc, char** argv)  {
 
         auto tStart = std::chrono::high_resolution_clock::now();
         //MPI...
-        #pragma parallel openmp for
+        #pragma omp parallel for
         for (int x = 0; x < WIDTH; x++) {
             for (int y = 0; y < HEIGHT; y++)  {
                 int val = value(x, y, atoi(argv[1]), atoi(argv[2]));
