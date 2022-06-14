@@ -23,6 +23,7 @@ int value (int x, int y, int iter, float scale)  {
         z = z * z + point;
         nb_iter++;
     }
+    
     if (nb_iter < iter)
        return (255*nb_iter)/iter;
     else
@@ -36,14 +37,17 @@ int main (int argc, char** argv)  {
     int rank, num_ranks, err;
     MPI_Status status;
 
-
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &num_ranks);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     auto tStart = std::chrono::high_resolution_clock::now();
 
-    //vamos atribuir o nó 0 como sendo o principal
+    /* 
+        vamos atribuir o nó 0 como sendo o principal onde envia uma matriz vazia
+        para outro nó e recebe a matriz calculada, e depois disso printa para o arquivo ppm
+
+    */
     if (rank == 0) { 
 
         int img[WIDTH][HEIGHT];
@@ -52,7 +56,7 @@ int main (int argc, char** argv)  {
         if (err != MPI_SUCCESS) MPI_Abort(MPI_COMM_WORLD, err);
 
         cout<< "Matriz enviada do nó 0 para o nó 1" <<" nó:" << rank <<"\n";
-        /* Write to img the processed row from rank k */
+        
         err = MPI_Recv(img, WIDTH*HEIGHT, MPI_INT, 1, 0, MPI_COMM_WORLD,
             &status);
         if (err != MPI_SUCCESS) MPI_Abort(MPI_COMM_WORLD, err);
@@ -63,7 +67,6 @@ int main (int argc, char** argv)  {
 
             my_Image << "P3\n" << WIDTH << " " << HEIGHT << " 255\n";
 
-            
             for (int x = 0; x < WIDTH; x++) {
                 for (int y = 0; y < HEIGHT; y++)  {
                     my_Image << img[x][y] << ' ' << 0 << ' ' << 0 << "\n";
@@ -77,10 +80,11 @@ int main (int argc, char** argv)  {
     }
     else {
 
-        int img2[WIDTH][HEIGHT];
+        int img2[WIDTH][HEIGHT]; //outra instancia de matriz para provar que está ocorrendo a transferencia via MPI
 
         err = MPI_Recv(img2, WIDTH*HEIGHT, MPI_INT, 0, 0, MPI_COMM_WORLD, &status);
         if (err != MPI_SUCCESS) MPI_Abort(MPI_COMM_WORLD, err);
+
         cout<< "Matriz recebida do nó 0 para o nó 1" <<" nó:" << rank <<"\n";;
         
         #pragma omp parallel for
@@ -94,6 +98,7 @@ int main (int argc, char** argv)  {
         
         err = MPI_Send(img2, WIDTH*HEIGHT, MPI_INT, 0, 0, MPI_COMM_WORLD);
         if (err != MPI_SUCCESS) MPI_Abort(MPI_COMM_WORLD, err);
+
         cout<< "Matriz calculada enviada do nó 1 para o nó 0" <<" nó:" << rank <<"\n";;
     }
 
@@ -101,5 +106,6 @@ int main (int argc, char** argv)  {
     std::chrono::duration<double> fTime = tEnd - tStart;
     cout << "Time Taken: " + std::to_string(fTime.count()) << "s" << "\n";
 
+    MPI_Finalize();
     return 0;
 }

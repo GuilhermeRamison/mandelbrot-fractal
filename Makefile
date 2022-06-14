@@ -7,7 +7,7 @@ all: mandelbrot.cpp
 
 openmp: mandelbrot.cpp
 	mpiCC mandelbrot.cpp -o mandel $(FLAGS)
-	./mandel 100 3
+	./mandel 64 3
 	convert pixelmap.ppm fractal.png
 
 omp-mpi: mandelbrot.cpp
