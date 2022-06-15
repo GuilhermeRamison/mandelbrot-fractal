@@ -3,6 +3,7 @@
 This code aims to draw the mandelbrot fractal set using MPI nodes to perform calculations.
 
 Written in c++.
+Ref for the mandelbrot calculation: https://github.com/SlachPi/mandelbrot_cpp
 
 ### Dependencies
 
