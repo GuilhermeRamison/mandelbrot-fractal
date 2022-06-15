@@ -22,3 +22,5 @@ Written in c++.
   - Build and run the application without using openMP. May be slow for higher iterarions on the calculation
 - make omp-mpi
   - Build and run the application using openMP
+
+![fractal-image](https://github.com/GuilhermeRamison/mandelbrot-fractal/blob/main/fractal.png?raw=true)
